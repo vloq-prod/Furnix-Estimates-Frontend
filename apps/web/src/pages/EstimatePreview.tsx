@@ -318,8 +318,7 @@ export default function EstimatePreview() {
                 </footer>
 
                 <p className="mt-6 border-t border-line pt-2 text-[10.5px] text-ink-mute">
-                  {estimate.estimateNumber} · Revision {estimate.version} · This is an estimate, not a tax
-                  invoice.
+                  {estimate.estimateNumber} · This is an estimate, not a tax invoice.
                 </p>
               </div>
             )}
@@ -383,8 +382,7 @@ export default function EstimatePreview() {
                 </footer>
 
                 <p className="mt-6 border-t border-line pt-2 text-[10.5px] text-ink-mute">
-                  {estimate.estimateNumber} · Revision {estimate.version} · This is an estimate, not a tax
-                  invoice.
+                  {estimate.estimateNumber} · This is an estimate, not a tax invoice.
                 </p>
               </div>
             </div>
