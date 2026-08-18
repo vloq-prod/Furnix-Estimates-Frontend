@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/AppShell';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@/components/estimate/EstimateForm';
 import { useToast } from '@/components/ui';
 import { useCreateEstimate, useUpdateEstimateStatus } from '@/hooks/useEstimates';
+import { useDefaultTerms } from '@/hooks/useTerms';
 import { ApiError } from '@/lib/api';
 
 export default function EstimateCreate() {
@@ -16,9 +17,24 @@ export default function EstimateCreate() {
   const { notify } = useToast();
   const createEstimate = useCreateEstimate();
   const updateStatus = useUpdateEstimateStatus();
+  const { data: defaults } = useDefaultTerms();
 
   const [state, setState] = useState<EstimateFormState>(() => emptyFormState());
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (defaults && state.clauses.length === 0) {
+      const initialClauses = defaults.map((template, index) => ({
+        sourceTemplateId: template.id,
+        title: template.title,
+        contentHtml: template.contentHtml,
+        version: template.version,
+        sequence: index,
+        isCustom: false,
+      }));
+      setState((prev) => ({ ...prev, clauses: initialClauses }));
+    }
+  }, [defaults]);
 
   const save = (after: 'stay' | 'preview' | 'send') => {
     setFieldErrors({});
