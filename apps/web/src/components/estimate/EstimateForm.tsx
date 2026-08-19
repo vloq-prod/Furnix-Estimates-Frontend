@@ -66,7 +66,7 @@ export function toPayload(state: EstimateFormState): EstimatePayload {
     validUntil: state.validUntil,
     clientCompanyName: state.clientCompanyName.trim(),
     contactPerson: state.contactPerson.trim(),
-    email: state.email.trim(),
+    email: state.email.trim() || null,
     mobile: state.mobile.trim(),
     billingAddress: state.billingAddress.trim(),
     gstin: state.gstin.trim() || null,
@@ -275,7 +275,7 @@ export function EstimateForm({
               )}
             </Field>
 
-            <Field label="Email" required error={fieldErrors.email}>
+            <Field label="Email" error={fieldErrors.email}>
               {(props) => (
                 <Input
                   {...props}

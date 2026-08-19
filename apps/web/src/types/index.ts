@@ -151,7 +151,7 @@ export interface EstimateListRow {
   status: EstimateStatus;
   clientCompanyName: string;
   contactPerson: string;
-  email: string;
+  email: string | null;
   mobile: string;
   hostingModel: HostingModel;
   userCount: number;
@@ -232,7 +232,7 @@ export interface EstimatePayload {
   validUntil: string;
   clientCompanyName: string;
   contactPerson: string;
-  email: string;
+  email?: string | null;
   mobile: string;
   billingAddress: string;
   gstin?: string | null;
