@@ -20,6 +20,7 @@ export function PricingLedger({
   gstPercent,
   adjustment,
   onAdjustmentChange,
+  onGstChange,
   disabled,
   sticky = true,
 }: {
@@ -27,6 +28,7 @@ export function PricingLedger({
   gstPercent: number;
   adjustment?: AdjustmentState;
   onAdjustmentChange?: (next: AdjustmentState) => void;
+  onGstChange?: (applyGst: boolean) => void;
   disabled?: boolean;
   sticky?: boolean;
 }) {
@@ -34,6 +36,8 @@ export function PricingLedger({
   const showInternal = can(Permission.ADJUSTMENT_VIEW);
   const hasRecurring = pricing.recurringSubtotal > 0;
   const isCloud = pricing.hostingModel === 'VLOQ_CLOUD';
+  const isGstApplied = Number(gstPercent) > 0;
+  const effectiveGstRate = isGstApplied ? Number(gstPercent) : (pricing.gstPercent || 18);
 
   return (
     // No overflow-hidden here: it clipped the advanced pricing panel. The panel
@@ -91,13 +95,22 @@ export function PricingLedger({
           <div className="py-1 text-[13px] text-ink-mute">No modules selected</div>
         )}
 
+        {isGstApplied && pricing.taxableOneTime > 0 && (
+          <div className="mt-1 pt-1 border-t border-line/40">
+            <LedgerRow label="Taxable amount" value={pricing.taxableOneTime} muted />
+            <LedgerRow label={`GST (${effectiveGstRate}%)`} value={pricing.gstOneTime} muted />
+          </div>
+        )}
+
         <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-ink pt-2.5">
           <div>
             <span className="eyebrow text-ink">Net payable</span>
-            <span className="ml-1.5 text-[11px] text-ink-soft normal-case font-normal">(GST Excluded)</span>
+            <span className="ml-1.5 text-[11px] text-ink-soft normal-case font-normal">
+              {isGstApplied ? '(GST Included)' : '(GST Excluded)'}
+            </span>
           </div>
           <span className="figure text-[19px] font-bold tracking-tight text-ink">
-            {formatPaise(pricing.taxableOneTime)}
+            {formatPaise(isGstApplied ? pricing.netPayableOneTime : pricing.taxableOneTime)}
           </span>
         </div>
       </section>
@@ -140,14 +153,19 @@ export function PricingLedger({
             )}
 
             <LedgerRow label="Taxable amount" value={pricing.taxableRecurring} />
+            {isGstApplied && (
+              <LedgerRow label={`GST (${effectiveGstRate}%)`} value={pricing.gstRecurring} />
+            )}
 
             <div className="mt-2.5 flex items-baseline justify-between gap-3 border-t border-gold pt-2.5">
               <div>
                 <span className="eyebrow text-gold-deep">Monthly payable</span>
-                <span className="ml-1.5 text-[11px] text-gold-deep/70 normal-case font-normal">(GST Excluded)</span>
+                <span className="ml-1.5 text-[11px] text-gold-deep/70 normal-case font-normal">
+                  {isGstApplied ? '(GST Included)' : '(GST Excluded)'}
+                </span>
               </div>
               <span className="figure text-[19px] font-bold tracking-tight text-gold-deep">
-                {formatPaise(pricing.taxableRecurring)}
+                {formatPaise(isGstApplied ? pricing.monthlyRecurringPayable : pricing.taxableRecurring)}
                 <span className="ml-0.5 text-[11px] font-semibold text-gold-deep/70">/mo</span>
               </span>
             </div>
@@ -169,16 +187,39 @@ export function PricingLedger({
         </section>
       )}
 
-      {showInternal && hasRecurring && (
-        <footer className="border-t border-line px-5 py-3">
+      <footer className="border-t border-line px-5 py-3">
+        {showInternal && hasRecurring && (
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-[11.5px] text-ink-mute">First-year value (internal)</span>
             <span className="figure text-[13px] font-semibold text-ink-soft">
               {formatPaise(pricing.firstYearIndicativeValue)}
             </span>
           </div>
-        </footer>
-      )}
+        )}
+
+        <div className={cx(showInternal && hasRecurring && 'mt-2.5 pt-2.5 border-t border-line/60')}>
+          <label
+            className={cx(
+              'flex items-center justify-between gap-3 select-none',
+              disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+            )}
+          >
+            <span className="flex items-center gap-2 text-[12.5px] font-medium text-ink">
+              <input
+                type="checkbox"
+                checked={isGstApplied}
+                disabled={disabled}
+                onChange={(event) => onGstChange?.(event.target.checked)}
+                className="size-4 rounded accent-[var(--color-gold)] cursor-pointer disabled:cursor-not-allowed"
+              />
+              <span>Apply GST ({effectiveGstRate}%)</span>
+            </span>
+            <span className="text-[11px] text-ink-mute">
+              {isGstApplied ? 'GST Included' : 'GST Excluded'}
+            </span>
+          </label>
+        </div>
+      </footer>
     </aside>
   );
 }

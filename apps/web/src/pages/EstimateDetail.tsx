@@ -238,10 +238,10 @@ export default function EstimateDetail() {
             <div className="border-t border-line pt-3">
               <p className="eyebrow">One-time payable</p>
               <p className="figure mt-1 text-[21px] font-bold tracking-tight text-ink">
-                {inr(estimate.taxableOneTime)}
+                {inr(Number(estimate.gstPercent) > 0 ? estimate.netPayableOneTime : estimate.taxableOneTime)}
               </p>
               <p className="mt-0.5 text-[11.5px] text-ink-mute">
-                GST Excluded
+                {Number(estimate.gstPercent) > 0 ? 'GST Included' : 'GST Excluded'}
               </p>
             </div>
 
@@ -249,11 +249,11 @@ export default function EstimateDetail() {
               <div className="mt-3 border-t border-gold/40 pt-3">
                 <p className="eyebrow text-gold-deep">Monthly payable</p>
                 <p className="figure mt-1 text-[21px] font-bold tracking-tight text-gold-deep">
-                  {inr(estimate.taxableRecurring)}
+                  {inr(Number(estimate.gstPercent) > 0 ? estimate.monthlyRecurringPayable : estimate.taxableRecurring)}
                   <span className="ml-0.5 text-[11px]">/mo</span>
                 </p>
                 <p className="mt-0.5 text-[11.5px] text-ink-mute">
-                  Billed separately · GST Excluded
+                  Billed separately · {Number(estimate.gstPercent) > 0 ? 'GST Included' : 'GST Excluded'}
                 </p>
               </div>
             )}

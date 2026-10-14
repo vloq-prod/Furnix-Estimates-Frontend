@@ -17,7 +17,7 @@ import type { EstimatePayload } from '@/types';
 import { EMPTY_ADJUSTMENT, type AdjustmentState } from './AdvancedPricingControl';
 import { ModuleSelector, type ModuleSelection } from './ModuleSelector';
 import { PricingLedger } from './PricingLedger';
-import type { ClauseDraft } from './TermsBuilder';
+import { TermsBuilder, type ClauseDraft } from './TermsBuilder';
 
 export interface EstimateFormState {
   estimateDate: string;
@@ -52,7 +52,7 @@ export function emptyFormState(validityDays = 30): EstimateFormState {
     gstin: '',
     hostingModel: 'VLOQ_CLOUD',
     userCount: 10,
-    gstPercent: 18,
+    gstPercent: 0,
     modules: [],
     clauses: [],
     notes: '',
@@ -264,9 +264,13 @@ export function EstimateForm({
                 <Input
                   {...props}
                   type="tel"
+                  maxLength={10}
                   value={state.mobile}
                   disabled={readOnly}
-                  onChange={(event) => patch('mobile', event.target.value)}
+                  onChange={(event) => {
+                    const val = event.target.value.replace(/\D/g, '').slice(0, 10);
+                    patch('mobile', val);
+                  }}
                 />
               )}
             </Field>
@@ -339,6 +343,18 @@ export function EstimateForm({
           </div>
         </Card>
 
+        <Card>
+          <CardHeader
+            eyebrow="Step 3"
+            title="Terms & conditions"
+            description="Clauses that print at the bottom of the estimate. Load defaults, or add custom ones."
+          />
+          <TermsBuilder
+            clauses={state.clauses}
+            disabled={readOnly}
+            onChange={(clauses) => patch('clauses', clauses)}
+          />
+        </Card>
 
         <Card>
           <div className="flex items-center justify-between gap-4">
@@ -374,6 +390,10 @@ export function EstimateForm({
           disabled={readOnly}
           sticky={false}
           onAdjustmentChange={(adjustment) => patch('adjustment', adjustment)}
+          onGstChange={(apply) => {
+            const defaultGst = Number(settings?.defaultGstPercent ?? 18) || 18;
+            patch('gstPercent', apply ? defaultGst : 0);
+          }}
         />
 
         {!readOnly && (
