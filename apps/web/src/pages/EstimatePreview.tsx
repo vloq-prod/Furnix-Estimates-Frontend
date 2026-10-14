@@ -245,7 +245,7 @@ export default function EstimatePreview() {
               </section>
 
               {/* Settlements */}
-              <section className="mt-5 flex flex-col gap-4 lg:flex-row">
+              <section className="mt-2 flex flex-col gap-4 lg:flex-row">
                 <div className="flex-1 border border-line bg-canvas/30">
                   <p className="eyebrow border-b border-line px-3.5 py-1.5 text-ink">How this is billed</p>
                   <div className="p-3.5 space-y-4">
@@ -275,6 +275,8 @@ export default function EstimatePreview() {
                 <div className="w-full lg:w-80">
                   <SettlementBlock
                     title="One-time charges"
+                    subtotal={estimate.oneTimeSubtotal}
+                    adjustment={estimate.oneTimeAdjustment}
                     taxable={estimate.taxableOneTime}
                     gst={estimate.gstOneTime}
                     gstPercent={estimate.gstPercent}
@@ -285,6 +287,8 @@ export default function EstimatePreview() {
                     <div className="mt-3">
                       <SettlementBlock
                         title="Monthly recurring charges"
+                        subtotal={estimate.recurringSubtotal}
+                        adjustment={estimate.recurringAdjustment}
                         taxable={estimate.taxableRecurring}
                         gst={estimate.gstRecurring}
                         gstPercent={estimate.gstPercent}
@@ -300,9 +304,14 @@ export default function EstimatePreview() {
             </div>
 
             {!hasPage2 && (
-              <div className="mt-auto pt-8">
-                <footer className="flex flex-wrap justify-between gap-8">
-                  <div className="w-56 border-t border-ink pt-2">
+              <div className="mt-auto pt-4">
+                <footer className="flex flex-wrap justify-between gap-8 mt-8">
+                  <div className="relative w-56 border-t border-ink pt-2">
+                    <img
+                      src="/vloq-signature.png"
+                      alt="Signature"
+                      className="absolute bottom-6 left-2 h-16 object-contain pointer-events-none mix-blend-multiply"
+                    />
                     <p className="text-[12px] font-bold text-ink">{settings?.legalName}</p>
                     <p className="text-[11px] text-ink-soft">Authorised signatory</p>
                   </div>
@@ -313,8 +322,7 @@ export default function EstimatePreview() {
                 </footer>
 
                 <p className="mt-6 border-t border-line pt-2 text-[10.5px] text-ink-mute">
-                  {estimate.estimateNumber} · Revision {estimate.version} · This is an estimate, not a tax
-                  invoice.
+                  {estimate.estimateNumber} · This is an estimate, not a tax invoice.
                 </p>
               </div>
             )}
@@ -360,9 +368,14 @@ export default function EstimatePreview() {
                 )}
               </div>
 
-              <div className="mt-auto pt-8">
-                <footer className="flex flex-wrap justify-between gap-8">
-                  <div className="w-56 border-t border-ink pt-2">
+              <div className="mt-auto pt-4">
+                <footer className="flex flex-wrap justify-between gap-8 mt-8">
+                  <div className="relative w-56 border-t border-ink pt-2">
+                    <img
+                      src="/vloq-signature.png"
+                      alt="Signature"
+                      className="absolute bottom-6 left-2 h-16 object-contain pointer-events-none mix-blend-multiply"
+                    />
                     <p className="text-[12px] font-bold text-ink">{settings?.legalName}</p>
                     <p className="text-[11px] text-ink-soft">Authorised signatory</p>
                   </div>
@@ -373,8 +386,7 @@ export default function EstimatePreview() {
                 </footer>
 
                 <p className="mt-6 border-t border-line pt-2 text-[10.5px] text-ink-mute">
-                  {estimate.estimateNumber} · Revision {estimate.version} · This is an estimate, not a tax
-                  invoice.
+                  {estimate.estimateNumber} · This is an estimate, not a tax invoice.
                 </p>
               </div>
             </div>
@@ -396,6 +408,8 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function SettlementBlock({
   title,
+  subtotal,
+  adjustment,
   taxable,
   gst,
   gstPercent,
@@ -405,6 +419,8 @@ function SettlementBlock({
   accent,
 }: {
   title: string;
+  subtotal?: string;
+  adjustment?: string;
   taxable: string;
   gst: string;
   gstPercent: string;
@@ -413,28 +429,35 @@ function SettlementBlock({
   suffix?: string;
   accent?: boolean;
 }) {
+  const hasDiscount = subtotal !== undefined && adjustment !== undefined && Number(adjustment) !== 0;
   return (
     <div className={accent ? 'border border-gold/30 bg-gold-soft/30' : 'border border-line'}>
-      <p className="eyebrow border-b border-line px-3.5 py-1.5">{title}</p>
-      <div className="px-3.5 py-2 space-y-1">
+      <p className="eyebrow border-b border-line px-3.5 py-1">{title}</p>
+      <div className="px-3.5 py-1.5 space-y-[1px]">
+        {subtotal !== undefined && (
+          <Row label="Total amount" value={inr(subtotal)} />
+        )}
+        {hasDiscount && (
+          <Row label="Discount" value={`−${inr(adjustment!)}`} muted />
+        )}
         <Row label="Taxable amount" value={inr(taxable)} />
         {Number(gstPercent) > 0 && (
           <Row label={`GST (${Number(gstPercent)}%)`} value={inr(gst)} />
         )}
       </div>
       <div
-        className={`flex items-baseline justify-between gap-3 border-t px-3.5 py-2.5 ${
+        className={`flex items-baseline justify-between gap-3 border-t px-3.5 py-2 ${
           accent ? 'border-gold' : 'border-ink'
         }`}
       >
         <div>
           <span className={`eyebrow ${accent ? 'text-gold-deep' : 'text-ink'}`}>{totalLabel}</span>
-          <span className={`ml-1 text-[10.5px] normal-case font-normal ${accent ? 'text-gold-deep/70' : 'text-ink-soft'}`}>
+          <span className={`ml-1 text-[10px] normal-case font-normal ${accent ? 'text-gold-deep/70' : 'text-ink-soft'}`}>
             {Number(gstPercent) > 0 ? '(GST Included)' : '(GST Excluded)'}
           </span>
         </div>
         <span
-          className={`figure text-[17px] font-bold tracking-tight ${
+          className={`figure text-[15px] font-bold tracking-tight ${
             accent ? 'text-gold-deep' : 'text-ink'
           }`}
         >
@@ -446,11 +469,11 @@ function SettlementBlock({
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
   return (
-    <div className="flex justify-between gap-3 py-0.5">
-      <span className="text-[12.5px] text-ink-soft">{label}</span>
-      <span className="figure text-[12.5px] font-semibold text-ink">{value}</span>
+    <div className="flex justify-between gap-3 py-[1px]">
+      <span className={`text-[11.5px] ${muted ? 'text-ink-mute italic' : 'text-ink-soft'}`}>{label}</span>
+      <span className={`figure text-[11.5px] font-semibold ${muted ? 'text-ink-mute' : 'text-ink'}`}>{value}</span>
     </div>
   );
 }

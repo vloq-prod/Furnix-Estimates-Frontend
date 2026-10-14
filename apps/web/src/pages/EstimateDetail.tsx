@@ -119,7 +119,7 @@ export default function EstimateDetail() {
             <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <Detail label="Company" value={estimate.clientCompanyName} />
               <Detail label="Contact person" value={estimate.contactPerson} />
-              <Detail label="Email" value={estimate.email} />
+              <Detail label="Email" value={estimate.email ?? 'Not provided'} />
               <Detail label="Mobile" value={estimate.mobile} />
               <Detail label="GSTIN" value={estimate.gstin ?? 'Not provided'} mono />
               <Detail label="Users" value={String(estimate.userCount)} mono />

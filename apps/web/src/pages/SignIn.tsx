@@ -31,9 +31,11 @@ export default function SignIn() {
     <div className="grid min-h-dvh place-items-center px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-7 text-center">
-          <span className="font-display text-[30px] font-extrabold tracking-tight text-ink">
-            F<span className="text-gold">x</span>
-          </span>
+          <img
+            src="/furnix-mark.png"
+            alt="Furnix"
+            className="mx-auto size-12 rounded-lg"
+          />
           <h1 className="mt-3 font-display text-[19px] font-bold text-ink">Estimates & pricing</h1>
           <p className="mt-1 text-[13px] text-ink-soft">Sign in to build and send estimates.</p>
         </div>

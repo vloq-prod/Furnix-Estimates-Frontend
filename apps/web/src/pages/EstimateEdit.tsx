@@ -22,7 +22,7 @@ function toFormState(estimate: Estimate): EstimateFormState {
     validUntil: toDateInput(estimate.validUntil),
     clientCompanyName: estimate.clientCompanyName,
     contactPerson: estimate.contactPerson,
-    email: estimate.email,
+    email: estimate.email ?? '',
     mobile: estimate.mobile,
     billingAddress: estimate.billingAddress,
     gstin: estimate.gstin ?? '',
